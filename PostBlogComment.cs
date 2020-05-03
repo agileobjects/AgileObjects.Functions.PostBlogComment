@@ -77,17 +77,12 @@ namespace AgileObjects.Functions.PostBlogComment
                 return new BadRequestErrorMessageResult(string.Join(NewLine, errors));
             }
 
-            if (Uri.TryCreate(form["redirect"], Absolute, out var redirectUri))
-            {
-                return new RedirectResult(redirectUri.ToString());
-            }
-
             return new OkResult();
         }
 
         private bool IsNotCommentFromCorrectSite(IFormCollection form)
         {
-            if (!Uri.TryCreate(form["comment-site"], Absolute, out var postedCommentSite))
+            if (!Uri.TryCreate(form["commentSite"], Absolute, out var postedCommentSite))
             {
                 return true;
             }
@@ -129,7 +124,7 @@ namespace AgileObjects.Functions.PostBlogComment
             Reference prBranch,
             Comment comment)
         {
-            var commitMessage = $"Comment by {comment.name} on {comment.post_id}";
+            var commitMessage = $"Comment by {comment.name} on {comment.PostId}";
             var commentContent = new SerializerBuilder().Build().Serialize(comment);
             var commenterEmail = comment.email ?? _committerFallbackEmail;
 
@@ -138,7 +133,7 @@ namespace AgileObjects.Functions.PostBlogComment
                 Committer = new Committer(comment.name, commenterEmail, comment.date)
             };
 
-            var commentFilePath = $"_data/comments/{comment.post_id}/{comment.id}.yml";
+            var commentFilePath = $"_data/comments/{comment.PostId}/{comment.id}.yml";
 
             await _githubRepoClient.Content.CreateFile(repo.Id, commentFilePath, fileRequest);
 
@@ -171,27 +166,27 @@ namespace AgileObjects.Functions.PostBlogComment
             private static readonly ParameterInfo[] _ctorParameters = _ctor.GetParameters();
 
             // Valid characters when mapping from the blog post slug to a file path
-            private static readonly Regex _validPathChars = new Regex(@"[^a-zA-Z0-9-]", Compiled);
+            private static readonly Regex _invalidPathChars = new Regex(@"[^a-zA-Z0-9-]", Compiled);
             private static readonly Regex _emailMatcher = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", Compiled);
 
             public Comment(
-                string post_id,
+                string postId,
                 string message,
                 string name,
                 string email = null,
                 Uri url = null,
                 string avatar = null)
             {
-                this.post_id = _validPathChars.Replace(post_id, "-");
+                PostId = _invalidPathChars.Replace(postId, "-");
                 this.message = message;
                 this.name = name;
                 this.email = email;
                 this.url = url;
 
                 date = DateTime.UtcNow;
-                id = new { this.post_id, this.name, this.message, this.date }.GetHashCode().ToString("x8");
+                id = new { post_id = PostId, name, message, date }.GetHashCode().ToString("x8");
 
-                if (Uri.TryCreate(avatar, Absolute, out Uri avatarUrl))
+                if (Uri.TryCreate(avatar, Absolute, out var avatarUrl))
                 {
                     this.avatar = avatarUrl;
                 }
@@ -238,7 +233,7 @@ namespace AgileObjects.Functions.PostBlogComment
 
             private static object GetParameterValue(IFormCollection form, ParameterInfo parameter)
             {
-                var value = form[parameter.Name];
+                var value = form[parameter.Name].ToString();
 
                 if (string.IsNullOrWhiteSpace(value))
                 {
@@ -255,7 +250,7 @@ namespace AgileObjects.Functions.PostBlogComment
             #endregion
 
             [YamlIgnore]
-            public string post_id { get; }
+            public string PostId { get; }
 
             public string id { get; }
 
