@@ -28,7 +28,8 @@ namespace AgileObjects.Functions.PostBlogComment
         private readonly string _commentSiteHost;
         private readonly GitHubClient _githubClient;
         private readonly IRepositoriesClient _githubRepoClient;
-        private readonly IList<string> _repoOwnerName;
+        private readonly string _repoOwnerName;
+        private readonly string _repoName;
         private readonly string _committerFallbackEmail;
 
         public PostBlogComment(IConfiguration configuration)
@@ -44,7 +45,10 @@ namespace AgileObjects.Functions.PostBlogComment
             _githubRepoClient = _githubClient.Repository;
 
             // Get a reference to our GitHub repository
-            _repoOwnerName = configuration["PullRequestRepository"].Split('/');
+            var repoOwnerParts = configuration["PullRequestRepository"].Split('/');
+            _repoOwnerName = repoOwnerParts[0];
+            _repoName = repoOwnerParts[1];
+
             _committerFallbackEmail = configuration["CommentFallbackCommitEmail"];
         }
 
@@ -104,7 +108,7 @@ namespace AgileObjects.Functions.PostBlogComment
         #region GitHub Helpers
 
         private Task<Repository> GetGithubRepo()
-            => _githubRepoClient.Get(_repoOwnerName[0], _repoOwnerName[1]);
+            => _githubRepoClient.Get(_repoOwnerName, _repoName);
 
         private Task<Branch> GetDefaultBranch(Repository repo)
             => _githubRepoClient.Branch.Get(repo.Id, repo.DefaultBranch);
