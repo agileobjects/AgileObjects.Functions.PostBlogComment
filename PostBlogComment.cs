@@ -13,43 +13,24 @@ namespace AgileObjects.Functions.PostBlogComment
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Octokit;
-    using Octokit.Internal;
     using YamlDotNet.Serialization;
     using static System.Environment;
-    using static System.StringComparison;
     using static System.Text.RegularExpressions.RegexOptions;
     using static System.UriKind;
 
     public class PostBlogComment
     {
-        private readonly string _commentSiteHost;
         private readonly GitHubClient _githubClient;
         private readonly IRepositoriesClient _githubRepoClient;
-        private readonly string _repoOwnerName;
-        private readonly string _repoName;
-        private readonly string _committerFallbackEmail;
+        private readonly CommentInfo _info;
 
-        public PostBlogComment(IConfiguration configuration)
+        public PostBlogComment(GitHubClient githubClient, CommentInfo info)
         {
-            _commentSiteHost = new Uri(configuration["CommentWebsiteUrl"], Absolute).Host;
-
-            var githubCredentials = new Credentials(configuration["GitHubToken"]);
-
-            _githubClient = new GitHubClient(
-                new ProductHeaderValue("PostCommentToPullRequest"),
-                new InMemoryCredentialStore(githubCredentials));
-
+            _githubClient = githubClient;
             _githubRepoClient = _githubClient.Repository;
-
-            // Get a reference to our GitHub repository
-            var repoOwnerParts = configuration["PullRequestRepository"].Split('/');
-            _repoOwnerName = repoOwnerParts[0];
-            _repoName = repoOwnerParts[1];
-
-            _committerFallbackEmail = configuration["CommentFallbackCommitEmail"];
+            _info = info;
         }
 
         [FunctionName("PostBlogComment")]
@@ -60,12 +41,6 @@ namespace AgileObjects.Functions.PostBlogComment
             log.LogTrace("AgileObjects.Functions.Email.PostBlogComment triggered");
 
             var form = await request.ReadFormAsync();
-
-            if (IsNotCommentFromCorrectSite(form))
-            {
-                return new BadRequestErrorMessageResult(
-                    "Please make sure you post this to your own Jekyll comments receiever.");
-            }
 
             if (Comment.TryCreate(form, out var comment, out var errors))
             {
@@ -78,16 +53,6 @@ namespace AgileObjects.Functions.PostBlogComment
             }
 
             return new OkResult();
-        }
-
-        private bool IsNotCommentFromCorrectSite(IFormCollection form)
-        {
-            if (!Uri.TryCreate(form["commentSite"], Absolute, out var postedCommentSite))
-            {
-                return true;
-            }
-
-            return !_commentSiteHost.Equals(postedCommentSite.Host, OrdinalIgnoreCase);
         }
 
         private async Task CreatePullRequestFor(Comment comment)
@@ -103,7 +68,7 @@ namespace AgileObjects.Functions.PostBlogComment
         #region GitHub Helpers
 
         private Task<Repository> GetGithubRepo()
-            => _githubRepoClient.Get(_repoOwnerName, _repoName);
+            => _githubRepoClient.Get(_info.Repo.OwnerName, _info.Repo.Name);
 
         private Task<Branch> GetDefaultBranch(Repository repo)
             => _githubRepoClient.Branch.Get(repo.Id, repo.DefaultBranch);
@@ -126,7 +91,7 @@ namespace AgileObjects.Functions.PostBlogComment
         {
             var commitMessage = $"Comment by {comment.name} on {comment.PostId}";
             var commentContent = new SerializerBuilder().Build().Serialize(comment);
-            var commenterEmail = comment.email ?? _committerFallbackEmail;
+            var commenterEmail = comment.email ?? _info.CommitterFallbackEmail;
 
             var fileRequest = new CreateFileRequest(commitMessage, commentContent, prBranch.Ref)
             {

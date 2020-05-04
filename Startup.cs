@@ -7,6 +7,8 @@ namespace AgileObjects.Functions.PostBlogComment
     using Microsoft.Azure.Functions.Extensions.DependencyInjection;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Octokit;
+    using Octokit.Internal;
 
     public class Startup : FunctionsStartup
     {
@@ -21,6 +23,37 @@ namespace AgileObjects.Functions.PostBlogComment
         }
 
         public override void Configure(IFunctionsHostBuilder builder)
-            => builder.Services.AddSingleton(_configuration);
+        {
+            builder.Services
+                .AddSingleton(BuildGitHubClient())
+                .AddSingleton(BuildCommentInfo());
+        }
+
+        private GitHubClient BuildGitHubClient()
+        {
+            var githubCredentials = new Credentials(_configuration["GitHubToken"]);
+
+            var githubClient = new GitHubClient(
+                new ProductHeaderValue("PostCommentToPullRequest"),
+                new InMemoryCredentialStore(githubCredentials));
+
+            return githubClient;
+        }
+
+        private CommentInfo BuildCommentInfo()
+        {
+            var repoOwnerParts = _configuration["PullRequestRepository"].Split('/');
+
+            var info = new CommentInfo
+            {
+                Repo = new CommentRepo
+                {
+                    OwnerName = repoOwnerParts[0],
+                    Name = repoOwnerParts[1]
+                },
+                CommitterFallbackEmail = _configuration["CommentFallbackCommitEmail"]
+            };
+            return info;
+        }
     }
 }
