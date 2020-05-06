@@ -42,15 +42,28 @@ namespace AgileObjects.Functions.PostBlogComment
 
             var form = await request.ReadFormAsync();
 
-            if (Comment.TryCreate(form, out var comment, out var errors))
+            List<string> errors;
+
+            try
             {
-                await CreatePullRequestFor(comment);
+                if (Comment.TryCreate(form, out var comment, out errors))
+                {
+                    await CreatePullRequestFor(comment);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "Blog comment posting failed. An unspecified error occurred.");
+
+                return new InternalServerErrorResult();
             }
 
             if (errors.Any())
             {
                 return new BadRequestErrorMessageResult(string.Join(NewLine, errors));
             }
+
+            log.LogInformation("Blog comment posted.");
 
             return new OkResult();
         }
