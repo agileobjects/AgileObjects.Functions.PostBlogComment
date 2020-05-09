@@ -9,6 +9,7 @@ namespace AgileObjects.Functions.PostBlogComment
     using Microsoft.Extensions.DependencyInjection;
     using Octokit;
     using Octokit.Internal;
+    using YamlDotNet.Serialization;
 
     public class Startup : FunctionsStartup
     {
@@ -26,7 +27,8 @@ namespace AgileObjects.Functions.PostBlogComment
         {
             builder.Services
                 .AddSingleton(BuildGitHubClient())
-                .AddSingleton(BuildCommentInfo());
+                .AddSingleton(BuildCommentInfo())
+                .AddSingleton(new SerializerBuilder().Build());
         }
 
         private GitHubClient BuildGitHubClient()

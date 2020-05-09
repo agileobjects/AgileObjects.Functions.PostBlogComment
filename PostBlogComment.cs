@@ -25,12 +25,17 @@ namespace AgileObjects.Functions.PostBlogComment
         private readonly GitHubClient _githubClient;
         private readonly IRepositoriesClient _githubRepoClient;
         private readonly CommentInfo _info;
+        private readonly ISerializer _yamlSerializer;
 
-        public PostBlogComment(GitHubClient githubClient, CommentInfo info)
+        public PostBlogComment(
+            GitHubClient githubClient, 
+            CommentInfo info,
+            ISerializer yamlSerializer)
         {
             _githubClient = githubClient;
             _githubRepoClient = _githubClient.Repository;
             _info = info;
+            _yamlSerializer = yamlSerializer;
         }
 
         [FunctionName("PostBlogComment")]
@@ -103,7 +108,7 @@ namespace AgileObjects.Functions.PostBlogComment
             Comment comment)
         {
             var commitMessage = $"Comment by {comment.name} on {comment.PostId}";
-            var commentContent = new SerializerBuilder().Build().Serialize(comment);
+            var commentContent = _yamlSerializer.Serialize(comment);
             var commenterEmail = comment.email ?? _info.CommitterFallbackEmail;
 
             var fileRequest = new CreateFileRequest(commitMessage, commentContent, prBranch.Ref)
