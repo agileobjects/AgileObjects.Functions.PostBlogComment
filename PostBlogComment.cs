@@ -22,13 +22,15 @@ namespace AgileObjects.Functions.PostBlogComment
 
     public class PostBlogComment
     {
+        private static readonly string _functionName = typeof(PostBlogComment).FullName;
+
         private readonly GitHubClient _githubClient;
         private readonly IRepositoriesClient _githubRepoClient;
         private readonly CommentInfo _info;
         private readonly ISerializer _yamlSerializer;
 
         public PostBlogComment(
-            GitHubClient githubClient, 
+            GitHubClient githubClient,
             CommentInfo info,
             ISerializer yamlSerializer)
         {
@@ -43,7 +45,7 @@ namespace AgileObjects.Functions.PostBlogComment
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest request,
             ILogger log)
         {
-            log.LogTrace("AgileObjects.Functions.Email.PostBlogComment triggered");
+            log.LogTrace(_functionName + " triggered");
 
             var form = await request.ReadFormAsync();
 
