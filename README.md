@@ -1,7 +1,7 @@
 ﻿# AgileObjects.Functions.PostBlogComment
 
 An Azure Function to post a comment to a GitHub Pages Jekyll blog by automatically creating a pull 
-request in the blog repo.
+request in the blog repository.
 
 Phil Haack [has described](https://haacked.com/archive/2018/06/24/comments-for-jekyll-blogs) using
 JavaScript and an Azure Function to support comments on his blog. 
@@ -12,7 +12,7 @@ adds [dependency injection](https://docs.microsoft.com/en-us/azure/azure-functio
 
 ## Setup
 
-Borrowed in full from [Phil Haack's repo](https://github.com/Haacked/jekyll-blog-comments-azure):
+Borrowed in full from [Phil Haack's repository](https://github.com/Haacked/jekyll-blog-comments-azure):
 
 To set this up, you'll need to have an [Azure Portal account](https://portal.azure.com).
 
@@ -54,3 +54,5 @@ The function will respond with one of the following:
 | 200    | Comment posted successfully. |
 | 500    | Something unexpected went wrong. |
 | 400    | A piece of required information was either missing, or invalid. A collection of new-line-separated error messages is returned to say what. |
+
+A successful posting creates a pull request in the configured GitHub repository with the comment in [a YAML file](https://en.wikipedia.org/wiki/YAML). Completing the pull request commits the comment's file to the repositories `_data` folder, adding it to the collection of comments belonging to the relevant blog.
