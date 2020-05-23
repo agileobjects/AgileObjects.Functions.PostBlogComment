@@ -1,11 +1,11 @@
 ﻿# AgileObjects.Functions.PostBlogComment
 
-An Azure Function to post a comment to a [GitHub Pages](https://pages.github.com) 
+A .NET Core 3.1 Azure Function to post a comment to a [GitHub Pages](https://pages.github.com) 
 [Jekyll](https://jekyllrb.com) blog by automatically creating a pull request in the blog repository.
 
 Phil Haack [has described](https://haacked.com/archive/2018/06/24/comments-for-jekyll-blogs) using
-JavaScript and an Azure Function to support comments on his blog. 
-[The Azure Function](https://github.com/Haacked/jekyll-blog-comments-azure) is forked from [an 
+JavaScript and an Azure Function to support comments on his Jekyll blog. 
+[His Azure Function](https://github.com/Haacked/jekyll-blog-comments-azure) is forked from [an 
 Azure function](https://github.com/Azure-Functions/jekyll-blog-comments) by [Damien 
 Guard](https://damieng.com) - _this_ Azure Function updates it to .NET Core 3.1, tidies up a bit and 
 adds [dependency injection](https://docs.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection).
