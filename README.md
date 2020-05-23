@@ -1,6 +1,7 @@
 ﻿# AgileObjects.Functions.PostBlogComment
 
-An Azure Function to post a comment to a [GitHub Pages](https://pages.github.com) [Jekyll](https://jekyllrb.com) blog by automatically creating a pull request in the blog repository.
+An Azure Function to post a comment to a [GitHub Pages](https://pages.github.com) 
+[Jekyll](https://jekyllrb.com) blog by automatically creating a pull request in the blog repository.
 
 Phil Haack [has described](https://haacked.com/archive/2018/06/24/comments-for-jekyll-blogs) using
 JavaScript and an Azure Function to support comments on his blog. 
@@ -11,15 +12,14 @@ adds [dependency injection](https://docs.microsoft.com/en-us/azure/azure-functio
 
 ## Setup
 
-Borrowed in full from [Phil Haack's repository](https://github.com/Haacked/jekyll-blog-comments-azure):
+Borrowed from [Phil Haack's repository](https://github.com/Haacked/jekyll-blog-comments-azure):
 
-To set this up, you'll need to have an [Azure Portal account](https://portal.azure.com).
-
-1. Fork this repository.
-2. [Create an Azure Function](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-first-azure-function)
-3. [optional] [Set up your function to deploy from GitHub](https://docs.microsoft.com/en-us/azure/azure-functions/scripts/functions-cli-create-function-app-github-continuous). 
+1. Create an [Azure Portal account](https://portal.azure.com).
+2. Fork this repository.
+3. [Create an Azure Function](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-first-azure-function)
+4. [optional] [Set up your function to deploy from GitHub](https://docs.microsoft.com/en-us/azure/azure-functions/scripts/functions-cli-create-function-app-github-continuous). 
    Point it to your fork of this repository.
-4. Set up the following [App Settings for your Azure Function App](https://docs.microsoft.com/en-us/azure/azure-functions/functions-how-to-use-azure-function-app-settings).
+5. Set up the following [App Settings for your Azure Function App](https://docs.microsoft.com/en-us/azure/azure-functions/functions-how-to-use-azure-function-app-settings).
 
 | Setting                    | Value |
 |----------------------------|-------|
@@ -54,4 +54,7 @@ The function will respond with one of the following:
 | 500    | Something unexpected went wrong. |
 | 400    | A piece of required information was either missing, or invalid. A collection of new-line-separated error messages is returned to say what. |
 
-A successful posting creates a pull request in the configured GitHub repository with the comment in [a YAML file](https://en.wikipedia.org/wiki/YAML). Completing the pull request commits the comment's file to the repositories `_data` folder, adding it to the collection of comments belonging to the relevant blog.
+A successful posting creates a pull request in the configured GitHub repository with the comment in 
+[a YAML file](https://en.wikipedia.org/wiki/YAML). Completing the pull request commits the comment's 
+file to the repository's `_data` folder, adding it to the collection of comments belonging to the 
+relevant blog, to be rendered by Jekyll.
