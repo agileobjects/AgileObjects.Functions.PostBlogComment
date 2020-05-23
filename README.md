@@ -1,7 +1,6 @@
 ﻿# AgileObjects.Functions.PostBlogComment
 
-An Azure Function to post a comment to a GitHub Pages Jekyll blog by automatically creating a pull 
-request in the blog repository.
+An Azure Function to post a comment to a [GitHub Pages](https://pages.github.com) [Jekyll](https://jekyllrb.com) blog by automatically creating a pull request in the blog repository.
 
 Phil Haack [has described](https://haacked.com/archive/2018/06/24/comments-for-jekyll-blogs) using
 JavaScript and an Azure Function to support comments on his blog. 
