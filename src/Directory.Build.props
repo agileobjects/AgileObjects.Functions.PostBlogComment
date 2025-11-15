@@ -6,7 +6,7 @@
     <Product>AgileObjects.Tezdi</Product>
     <Copyright>Copyright © AgileObjects Ltd 2025</Copyright>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/agileobjects/AgileObjects.Functions.Email</RepositoryUrl>
+    <RepositoryUrl>https://github.com/agileobjects/AgileObjects.Functions.PostBlogComment</RepositoryUrl>
     <LangVersion>preview</LangVersion>
     <ImplicitUsings>true</ImplicitUsings>
     <Nullable>enable</Nullable>
